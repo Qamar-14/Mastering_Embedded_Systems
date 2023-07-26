@@ -1,0 +1,6 @@
+"Src/STM32F103C_Drivers/HAL_Drivers/LCD_DRIVER/lcd.o"
+"Src/STM32F103C_Drivers/MCAL_Drivers/GPIO_DRIVER/gpio.o"
+"Src/Startup/startup_stm32f103c6tx.o"
+"Src/main.o"
+"Src/syscalls.o"
+"Src/sysmem.o"

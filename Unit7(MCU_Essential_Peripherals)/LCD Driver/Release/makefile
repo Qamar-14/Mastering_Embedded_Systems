@@ -1,0 +1,80 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+-include ../makefile.init
+
+RM := rm -rf
+
+# All of the sources participating in the build are defined here
+-include sources.mk
+-include Src/Startup/subdir.mk
+-include Src/STM32F103C_Drivers/MCAL_Drivers/GPIO_DRIVER/subdir.mk
+-include Src/STM32F103C_Drivers/HAL_Drivers/LCD_DRIVER/subdir.mk
+-include Src/subdir.mk
+-include subdir.mk
+-include objects.mk
+
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(strip $(S_DEPS)),)
+-include $(S_DEPS)
+endif
+ifneq ($(strip $(S_UPPER_DEPS)),)
+-include $(S_UPPER_DEPS)
+endif
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+endif
+
+-include ../makefile.defs
+
+# Add inputs and outputs from these tool invocations to the build variables 
+EXECUTABLES += \
+LCD_lab.elf \
+
+SIZE_OUTPUT += \
+default.size.stdout \
+
+OBJDUMP_LIST += \
+LCD_lab.list \
+
+OBJCOPY_BIN += \
+LCD_lab.bin \
+
+
+# All Target
+all: LCD_lab.elf secondary-outputs
+
+# Tool invocations
+LCD_lab.elf: $(OBJS) $(USER_OBJS) C:\Users\noore\STM32CubeIDE\workspace_1.4.0\LCD_lab\STM32F103C6TX_FLASH.ld
+	arm-none-eabi-gcc -o "LCD_lab.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\noore\STM32CubeIDE\workspace_1.4.0\LCD_lab\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD_lab.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	@echo 'Finished building target: $@'
+	@echo ' '
+
+default.size.stdout: $(EXECUTABLES)
+	arm-none-eabi-size  $(EXECUTABLES)
+	@echo 'Finished building: $@'
+	@echo ' '
+
+LCD_lab.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LCD_lab.list"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+LCD_lab.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "LCD_lab.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+# Other Targets
+clean:
+	-$(RM) *
+	-@echo ' '
+
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
+
+.PHONY: all clean dependents
+.SECONDARY:
+
+-include ../makefile.targets
