@@ -1,0 +1,4 @@
+rcc.c:42:10:MCAL_RCC_GET_SYSCLK_FREQ	4	static
+rcc.c:66:10:MCAL_RCC_GET_HCLK_FREQ	8	static
+rcc.c:71:10:MCAL_RCC_GET_PCLK1_FREQ	8	static
+rcc.c:76:10:MCAL_RCC_GET_PCLK2_FREQ	8	static

@@ -21,14 +21,14 @@
 // SPI CONFIGURATION STRUCTURES
 //-------------------------------------------------
 
-struct S_IRQ_SRC
+typedef struct
 {
 	uint8_t TXE:1; //TX buffer empty interrupt
 	uint8_t RXNE:1; //RX buffer not empty interrupt
 	uint8_t ERRI:1; //error interrupt
 	uint8_t Reserved:1;
 
-};
+}S_IRQ_SRC;
 
 
 typedef struct
@@ -60,7 +60,7 @@ typedef struct
 	uint16_t	IRQ_ENABLE;
 						// This parameter must be set by @ref SPI_IRQ_ENABLE
 
-	void (* P_IRQ_CALLBACK)(S_IRQ_SRC);	// Set the c function which will be called once the IRQ occurs
+	void (* P_SPI_IRQ_CALLBACK)(S_IRQ_SRC x);	// Set the c function which will be called once the IRQ occurs
 
 }SPI_Config_t;
 
@@ -72,21 +72,21 @@ typedef struct
 
 //@ref SPI_DEVICE_MODE_DEFINE
 #define SPI_DEVICE_MODE_SLAVE			(0x00000000U)
-#define SPI_DEVICE_MODE_MASTER			(0x1U<<2) //CR1 MSTR:1
+#define SPI_DEVICE_MODE_MASTER			 (uint32_t)(0x1U<<2) //CR1 MSTR:1
 
 
 
 //@ref SPI_COMM_MODE_DEFINE
-#define SPI_DIRECTION_2LINES				(0x00000000U)
-#define SPI_DIRECTION_2LINES_RXONLY			(0x1U<<10) //CR1 RXONLY:1 receive only
-#define SPI_DIRECTION_1LINE_RECEIVE_ONLY		(0x1U<<15) //CR1 BIDIMODE:1 bidirectional data mode enable
-#define SPI_DIRECTION_1LINE_TRANSMIT_ONLY		((0x1U<<15)|(0x1U<<14)) //CR1 bit 15 is bidimode: 1 line Bidirectional data mode enable & bit 14 BIDIOE: Output enable (Transmit only)
+#define SPI_DIRECTION_2LINES				(uint16_t)(0)
+#define SPI_DIRECTION_2LINES_RXONLY			(uint16_t)(0x1U<<10) //CR1 RXONLY:1 receive only
+#define SPI_DIRECTION_1LINE_RECEIVE_ONLY	(uint16_t)(0x1U<<15) //CR1 BIDIMODE:1 bidirectional data mode enable
+#define SPI_DIRECTION_1LINE_TRANSMIT_ONLY	(uint16_t)((0x1U<<15)|(0x1U<<14)) //CR1 bit 15 is bidimode: 1 line Bidirectional data mode enable & bit 14 BIDIOE: Output enable (Transmit only)
 
 
 
 //@ref SPI_FRAME_FORMAT_DEFINE
-#define SPI_FRAME_FORMAT_MSB 				(0x00000000U)
-#define SPI_FRAME_FORMAT_LSB 				(0x1U<<7)
+#define SPI_FRAME_FORMAT_MSB 				 (uint16_t)(0)
+#define SPI_FRAME_FORMAT_LSB 				 (uint16_t)(0x1U<<7)
 
 /*Bit 7 LSBFIRST: Frame format
 0: MSB transmitted first
@@ -95,8 +95,8 @@ typedef struct
 
 
 //@ref SPI_DATA_SIZE_DEFINE
-#define SPI_DATA_SIZE_8B 				(0x00000000U)
-#define SPI_DATA_SIZE_16B  				(0x1U<<11)
+#define SPI_DATA_SIZE_8B 				 (uint16_t)(0)
+#define SPI_DATA_SIZE_16B  				 (1<<11)
 
 /*Bit 11 DFF: Data frame format
 0: 8-bit data frame format is selected for transmission/reception
@@ -108,28 +108,28 @@ It is not used in I2S mode*/
 
 //@ref SPI_CLKPOLARITY_DEFINE
 
-#define SPI_CLKPOLARITY_LOW_WHEN_IDLE			(0x00000000U)
-#define SPI_CLKPOLARITY_HIGH_WHEN_IDLE 			(0x1U<<1) //CR1 bit 1 CPOL selected
+#define SPI_CLKPOLARITY_LOW_WHEN_IDLE			 (uint16_t)(0)
+#define SPI_CLKPOLARITY_HIGH_WHEN_IDLE 			 (1<<1) //CR1 bit 1 CPOL selected
 
 
 
 //@ref SPI_CLKPHASE_DEFINE
 
-#define SPI_CLKPHASE_1EDGE_FIRST_DATA_CAPTURE_EDGE	(0x00000000U)
-#define SPI_CLKPHASE_2EDGE_FIRST_DATA_CAPTURE_EDGE 	(0x1U<<0) //CR1 bit 1 CPHA selected
+#define SPI_CLKPHASE_1EDGE_FIRST_DATA_CAPTURE_EDGE	 (uint16_t)(0x00000000U)
+#define SPI_CLKPHASE_2EDGE_FIRST_DATA_CAPTURE_EDGE 	 (1<<0) //CR1 bit 1 CPHA selected
 
 
 
 
 //@ref SPI_NSS (SPI SLAVE SELECT MANAGEMENT) HW OR SW
 //HW
-#define SPI_NSS_HW_SLAVE				(0x00000000U)
-#define SPI_NSS_HW_MASTER_SSO_ENABLE			(0x1U<<2) //CR2
-#define SPI_NSS_HW_MASTER_SSO_DISABLE			(~(0x1U<<2)) //CR2
+#define SPI_NSS_HW_SLAVE				((uint16_t)0x0U)
+#define SPI_NSS_HW_MASTER_SSO_ENABLE	 (1<<2)//CR2
+#define SPI_NSS_HW_MASTER_SSO_DISABLE	~(1<<2)  //CR2
 
 //SW (Master or slave)
 #define SPI_NSS_SW_InternalSoft_Reset 			(0x1U<<9)
-#define SPI_NSS_SW_InternalSoft_set 			((0x1U<<9) |(0x1U<<8))
+#define SPI_NSS_SW_InternalSoft_set 			(1<<9)|(1<<8)
 //Bit 9 SSM: Software slave management
 //When the SSM bit is set, the NSS pin input is replaced with the value from the SSI bit.
 //0: Software slave management disabled
@@ -156,7 +156,7 @@ They are not used in I2S mode.*/
 
 #define SPI_BAUDRATE_PRESCALAR_2			(0x00000000U)
 #define SPI_BAUDRATE_PRESCALAR_4			(0b001<<3)
-#define SPI_BAUDRATE_PRESCALAR_8			(0b010<<3)
+#define SPI_BAUDRATE_PRESCALAR_8			(uint32_t)(2<<3)
 #define SPI_BAUDRATE_PRESCALAR_16			(0b011<<3)
 #define SPI_BAUDRATE_PRESCALAR_32			(0b100<<3)
 #define SPI_BAUDRATE_PRESCALAR_64			(0b101<<3)
@@ -174,10 +174,10 @@ They are not used in I2S mode.*/
 
 
 
-enum Polling_Mechanism {
-	ENABLE,
-	DISABLE
-};
+typedef enum{
+	Polling_enable,
+	Polling_disable
+}Polling_Mechanism;
 
 //-------------------------------------------------
 // APIs supported by "MCAL SPI DRIVER"
@@ -188,9 +188,9 @@ void MCAL_SPI_DeINIT (SPI_Typedef* SPIx);
 
 void MCAL_SPI_GPIO_SET_PINS(SPI_Typedef* SPIx);
 
-void MCAL_SPI_SEND_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer, enum Polling_Mechanism PollingEn);
-void MCAL_SPI_RECEIVE_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer, enum Polling_Mechanism PollingEn);
+void MCAL_SPI_SEND_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer,  Polling_Mechanism PollingEn);
+void MCAL_SPI_RECEIVE_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer,  Polling_Mechanism PollingEn);
 
-void MCAL_SPI_TX_RX (SPI_Typedef* SPIx,uint16_t* pTX_Buffer, enum Polling_Mechanism PollingEn);
+void MCAL_SPI_TX_RX (SPI_Typedef* SPIx,uint16_t* pTX_Buffer,  Polling_Mechanism PollingEn);
 
 #endif

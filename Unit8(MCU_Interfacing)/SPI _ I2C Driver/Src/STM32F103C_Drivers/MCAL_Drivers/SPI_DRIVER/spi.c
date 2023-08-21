@@ -25,10 +25,10 @@ SPI_Config_t* Global_SPI_Config[2] ={NULL,NULL};
 #define	SPI1_INDEX	0
 #define	SPI2_INDEX	1
 
-#define	SPI_SR_TXE	((uint8_t)0x02)		//Transmit buffer empty
-#define	SPI_SR_RXNE	((uint8_t)0x01) 	//Receive buffer not empty
 
 
+#define SPI_SR_TXE               1<<1
+#define SPI_SR_RXNE              1<<0
 //-------------------------------------------------
 // APIs
 //-------------------------------------------------
@@ -56,9 +56,8 @@ void MCAL_SPI_INIT (SPI_Typedef* SPIx, SPI_Config_t* SPI_Config)
 		Global_SPI_Config[SPI2_INDEX] = SPI_Config;
 		RCC_SPI2_CLK_EN();
 	}
-
 	//EN SPI CR1:Bit 6 SPE
-	tmpreg_CR1= (0x1U<<6);
+		tmpreg_CR1= (0x1U<<6);
 
 	//Master or slave
 	tmpreg_CR1 |= SPI_Config->DEVICE_MODE;
@@ -85,14 +84,14 @@ void MCAL_SPI_INIT (SPI_Typedef* SPIx, SPI_Config_t* SPI_Config)
 	{
 		tmpreg_CR2 |= SPI_Config->NSS;
 	}
-	else if (SPI_Config->NSS == SPI_NSS_HW_MASTER_SSO_DISABLE)
+	else if ((SPI_Config->NSS == SPI_NSS_HW_MASTER_SSO_DISABLE) || (SPI_Config->NSS == SPI_NSS_HW_SLAVE))
 	{
 		tmpreg_CR2 &= SPI_Config->NSS;
 	}
 
 	else
 	{
-		tmpreg_CR1 &= SPI_Config->NSS;
+		tmpreg_CR1 |= SPI_Config->NSS;
 	}
 
 	// SPI BaudRate prescalar
@@ -113,8 +112,10 @@ void MCAL_SPI_INIT (SPI_Typedef* SPIx, SPI_Config_t* SPI_Config)
 		}
 
 	}
+	//SPIx->CR2 = tmpreg_CR2;
+
 	SPIx->CR1 = tmpreg_CR1;
-	SPIx->CR2 = tmpreg_CR2;
+
 
 }
 
@@ -178,13 +179,16 @@ void MCAL_SPI_GPIO_SET_PINS(SPI_Typedef* SPIx)
 				PinCfg.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;
 				MCAL_GPIO_Init(GPIOA, &PinCfg);
 				break;
+				default:
+					break;
 			}
 
 			//PA5:SPI1_SCK
 			//Master Alternate function push-pull
 			PinCfg.GPIO_PIN_NO = GPIO_PIN5;
 			PinCfg.GPIO_MODE = GPIO_MODE_OUTPUT_AF_PP;
-			PinCfg.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;				MCAL_GPIO_Init(GPIOA, &PinCfg);
+			PinCfg.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;
+			MCAL_GPIO_Init(GPIOA, &PinCfg);
 
 			//PA6:SPI_MISO
 			//Supported only (Full Duplex) master: Input floating
@@ -196,7 +200,8 @@ void MCAL_SPI_GPIO_SET_PINS(SPI_Typedef* SPIx)
 			//Supported only (Full Duplex) master: Alternate function push-pull
 			PinCfg.GPIO_PIN_NO = GPIO_PIN7;
 			PinCfg.GPIO_MODE = GPIO_MODE_OUTPUT_AF_PP;
-			PinCfg.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;				MCAL_GPIO_Init(GPIOA, &PinCfg);
+			PinCfg.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;
+			MCAL_GPIO_Init(GPIOA, &PinCfg);
 		}
 
 
@@ -239,10 +244,10 @@ void MCAL_SPI_GPIO_SET_PINS(SPI_Typedef* SPIx)
 		//PB15:SPI_MOSI
 
 
-		if (Global_SPI_Config[SPI1_INDEX]->DEVICE_MODE == SPI_DEVICE_MODE_MASTER)
+		if (Global_SPI_Config[SPI2_INDEX]->DEVICE_MODE == SPI_DEVICE_MODE_MASTER)
 		{
 			//PB12:SPI1_NSS
-			switch (Global_SPI_Config[SPI1_INDEX]->NSS)
+			switch (Global_SPI_Config[SPI2_INDEX]->NSS)
 			{
 				case SPI_NSS_HW_MASTER_SSO_DISABLE:
 				//Hardware master /slave Input floating
@@ -282,10 +287,10 @@ void MCAL_SPI_GPIO_SET_PINS(SPI_Typedef* SPIx)
 		}
 
 
-		else if (Global_SPI_Config[SPI1_INDEX]->DEVICE_MODE == SPI_DEVICE_MODE_SLAVE)
+		else if (Global_SPI_Config[SPI2_INDEX]->DEVICE_MODE == SPI_DEVICE_MODE_SLAVE)
 		{
 			//PB12:SPI1_NSS
-			if (Global_SPI_Config[SPI1_INDEX]->NSS == SPI_NSS_HW_SLAVE )
+			if (Global_SPI_Config[SPI2_INDEX]->NSS == SPI_NSS_HW_SLAVE )
 			{	//Hardware master /slave Input floating
 				PinCfg.GPIO_PIN_NO = GPIO_PIN12;
 				PinCfg.GPIO_MODE = GPIO_MODE_INPUT_FLOATING;
@@ -326,11 +331,11 @@ void MCAL_SPI_GPIO_SET_PINS(SPI_Typedef* SPIx)
  *
  */
 
-void MCAL_SPI_SEND_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer, enum Polling_Mechanism PollingEn)
+void MCAL_SPI_SEND_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer, Polling_Mechanism PollingEn)
 {
 	//TODO check if transmit only or recieve only
-	if ( PollingEn == ENABLE)
-		while( !(SPIx->SR & 1<< SPI_SR_TXE));
+	if ( PollingEn == Polling_enable)
+		while( !((SPIx->SR) &  SPI_SR_TXE) );
 
 	SPIx->DR = *pTX_Buffer;
 
@@ -346,49 +351,53 @@ void MCAL_SPI_SEND_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer, enum Polling_M
  * @Retval 		-None
  * Note			-Should initialize SPI first
  */
-void MCAL_SPI_RECEIVE_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer, enum Polling_Mechanism PollingEn)
+void MCAL_SPI_RECEIVE_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer,  Polling_Mechanism PollingEn)
 {
-	if ( PollingEn == ENABLE)
-		while( !(SPIx->SR & 1<< SPI_SR_RXNE));
+	if ( PollingEn == Polling_enable)
+		while( !((SPIx->SR) & SPI_SR_RXNE));
 
 	 *pTX_Buffer = SPIx->DR;
 }
 
-void MCAL_SPI_TX_RX (SPI_Typedef* SPIx,uint16_t* pTX_Buffer, enum Polling_Mechanism PollingEn)
+void MCAL_SPI_TX_RX (SPI_Typedef* SPIx,uint16_t* pTX_Buffer,  Polling_Mechanism PollingEn)
 {
-	if ( PollingEn == ENABLE)
-		while( !(SPIx->SR & 1<< SPI_SR_TXE));
+	if ( PollingEn == Polling_enable)
+		while( !(SPIx->SR & SPI_SR_RXNE) );
+	*pTX_Buffer = SPIx->DR;
+
+
+	if ( PollingEn == Polling_enable)
+		while( !(SPIx->SR &  SPI_SR_TXE) );
 	SPIx->DR = *pTX_Buffer;
 
-	if ( PollingEn == ENABLE)
-		while( !(SPIx->SR & 1<< SPI_SR_RXNE));
-	*pTX_Buffer = SPIx->DR;
-}
 
+
+}
 
 
 //-------------------------------------------------
 // IRQ
 //-------------------------------------------------
 
-void SPI1_IRQHandler(void)
+/*void SPI1_IRQHandler(void)
 {
-	struct S_IRQ_SRC irq_src;
+	S_IRQ_SRC irq_src;
 
 	irq_src.TXE =  (SPI1->SR & (1<<1) >> 1 );
 	irq_src.RXNE =  (SPI1->SR & (1<<0) >> 0 );
 	irq_src.ERRI =  (SPI1->SR & (1<<4) >> 4 );
 
-	Global_SPI_Config[SPI1_INDEX]->P_IRQ_CALLBACK(irq_src);
+	Global_SPI_Config[SPI1_INDEX]->P_SPI_IRQ_CALLBACK(irq_src);
 }
 
 void SPI2_IRQHandler(void)
 {
-	struct S_IRQ_SRC irq_src;
+	S_IRQ_SRC irq_src;
 
 	irq_src.TXE = (SPI2->SR & (1<<1) >> 1 );
 	irq_src.RXNE = (SPI2->SR & (1<<0) >> 0 );
 	irq_src.ERRI = (SPI2->SR & (1<<4) >> 4 );
 
-	Global_SPI_Config[SPI2_INDEX]->P_IRQ_CALLBACK(irq_src);
-}
+	Global_SPI_Config[SPI2_INDEX]->P_SPI_IRQ_CALLBACK(irq_src);
+}*/
+

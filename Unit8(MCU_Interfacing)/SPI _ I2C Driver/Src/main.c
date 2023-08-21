@@ -22,9 +22,38 @@
 #endif
 
 #include "GPIO_DRIVER/gpio.h"
-#include "EXTI_DRIVER/ext_interrupt.h"
-#include "STM32F103C_Drivers/HAL_Drivers/LCD_DRIVER/lcd.h"
 #include "USART_DRIVER/usart.h"
+#include "SPI_DRIVER/spi.h"
+
+
+#define MCU_ACT_AS_MASTER
+//#define MCU_ACT_AS_SLAVE
+
+uint16_t key ;
+
+/*void SPI_IRQ_CallBack(S_IRQ_SRC irq_src)
+{
+	if(irq_src.RXNE)
+	{
+		key = 0x0f;
+		MCAL_SPI_TX_RX(SPI1, &key, Polling_enable);
+		MCAL_UART_SEND_DATA(USART1, &key, ENABLE);
+	}
+
+}*/
+
+void USART_IRQ_CallBack(void)
+{
+	#ifdef MCU_ACT_AS_MASTER
+	MCAL_UART_RECEIVE_DATA(USART1, &key, DISABLE);
+	MCAL_UART_SEND_DATA(USART1, &key, ENABLE);
+
+	//Send to SPI
+	MCAL_GPIO_WRITE_PIN(GPIOA, GPIO_PIN4, 0);
+	MCAL_SPI_TX_RX(SPI1, &key, Polling_enable);
+	MCAL_GPIO_WRITE_PIN(GPIOA, GPIO_PIN4, 1);
+	#endif
+}
 
 void clock_init()
 
@@ -35,40 +64,85 @@ void clock_init()
 	//Enable clock GPIOB
 	RCC_GPIOB_CLK_EN();
 	RCC_AFIO_CLK_EN();
-}
 
-uint16_t recived_data ;
+}
+GPIO_PIN_CONFIG_t PinConfig;
+
 
 int main(void)
 {
 	clock_init();
 
+
+
+
+	// =================== SPI INIT =====================
+	//   PA4 : SPI1_NSS
+	//   PA5 : SPI1_SCK
+	//	 PA6 : SPI1_MISO
+	//   PA7 : SPI1_MOSI
+	SPI_Config_t SPI;
+
+	// common configuration for master and slave
+	SPI.CLK_PHASE = SPI_CLKPHASE_2EDGE_FIRST_DATA_CAPTURE_EDGE;
+	SPI.CLK_POLARITY = SPI_CLKPOLARITY_HIGH_WHEN_IDLE;
+	SPI.DATA_SZ = SPI_DATA_SIZE_8B;
+	SPI.FRAME_FORMAT = SPI_FRAME_FORMAT_MSB;
+	SPI.SPI_BAUDRATE_PRESCALAR = SPI_BAUDRATE_PRESCALAR_8;
+	SPI.COMM_MODE = SPI_DIRECTION_2LINES;
+
+
+	#ifdef MCU_ACT_AS_MASTER
+
+	SPI.DEVICE_MODE = SPI_DEVICE_MODE_MASTER;
+	SPI.IRQ_ENABLE = SPI_IRQ_ENABLE_NONE;
+	SPI.NSS = SPI_NSS_SW_InternalSoft_set;
+	SPI.P_SPI_IRQ_CALLBACK = NULL;
+
+	// configure SS on PA4 by GPIO
+    PinConfig.GPIO_PIN_NO = GPIO_PIN4;
+    PinConfig.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
+    PinConfig.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;
+    MCAL_GPIO_Init(GPIOA, &PinConfig);
+
+
+	// Force the Slave Select (HIGH) for idle Mode
+	MCAL_GPIO_WRITE_PIN(GPIOA, GPIO_PIN4, 1);
+
+	#endif
+
+	/*#ifdef MCU_ACT_AS_SLAVE
+	SPI.DEVICE_MODE = SPI_DEVICE_MODE_SLAVE;
+	SPI.IRQ_ENABLE = SPI_IRQ_ENABLE_RXNEIE;
+	SPI.NSS = SPI_NSS_HW_SLAVE;
+	SPI.P_SPI_IRQ_CALLBACK = NULL;
+
+	#endif
+*/
+
+	MCAL_SPI_INIT(SPI1, &SPI);
+	MCAL_SPI_GPIO_SET_PINS(SPI1);
+
+	// =================== UART INIT =====================
 	UART_Config_t UART ;
 	UART.BaudRate = UART_BaudRate_115200 ;
 	UART.FlowCTRL = UART_FLOWCTRL_NONE ;
-	UART.IRQ_ENABLE = UART_IRQ_ENABLE_NONE ;
+	UART.IRQ_ENABLE = UART_IRQ_ENABLE_RXNEIE ;
 	UART.USART_MODE = UART_MODE_RX_TX ;
 	UART.Parity = UART_PARITY_NONE ;
 	UART.Payload_length = UART_PayloadLength_8B ;
 	UART.StopBits = UART_StopBit_1 ;
-	UART.P_IRQ_CALLBACK = NULL ;
+	UART.P_IRQ_CALLBACK = USART_IRQ_CallBack ;
 
 	MCAL_UART_INIT(USART1, &UART);
 	MCAL_UART_GPIO_SET_PINS(USART1);
 
 
+
 	while(1)
 	{
 
-
-		MCAL_UART_RECEIVE_DATA(USART1, &recived_data, ENABLE);
-		MCAL_UART_SEND_DATA(USART1, &recived_data, ENABLE);
-
 	}
-
-
-
-	return 0;
 }
 
 

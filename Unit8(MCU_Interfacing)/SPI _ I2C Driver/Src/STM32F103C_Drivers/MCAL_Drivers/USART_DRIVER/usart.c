@@ -18,7 +18,7 @@
 //-------------------------------------------------
 
 UART_Config_t* Global_UART_Config = NULL;
-UART_Config_t G_UART_Config;
+//UART_Config_t G_UART_Config;
 
 //-------------------------------------------------
 // GENERIC FUNCTIONS
@@ -43,8 +43,8 @@ UART_Config_t G_UART_Config;
 void MCAL_UART_INIT (USART_Typedef* USARTx, UART_Config_t* UART_Config)
 {
 	uint32_t pclk, BRR;
-	G_UART_Config = *UART_Config;
-	Global_UART_Config = &G_UART_Config;
+	//G_UART_Config = *UART_Config;
+	Global_UART_Config = UART_Config;
 
 
 	//EN the clk for given USART peripheral
@@ -83,9 +83,9 @@ void MCAL_UART_INIT (USART_Typedef* USARTx, UART_Config_t* UART_Config)
 		pclk = MCAL_RCC_GET_PCLK2_FREQ();
 	}
 
-	if (USARTx == USART1)
+	if (USARTx == USART2)
 	{
-		pclk = MCAL_RCC_GET_PCLK2_FREQ();
+		pclk = MCAL_RCC_GET_PCLK1_FREQ();
 	}
 	BRR = UART_BRR_REG(pclk, UART_Config->BaudRate);
 	USARTx->BRR =BRR;
@@ -277,7 +277,7 @@ void MCAL_UART_SEND_DATA (USART_Typedef* USARTx, uint16_t* pTX_Buffer, enum Poll
 {
 	//Wait until TXE flag is set
 	if ( PollingEn == ENABLE)
-		while( !(USARTx->SR & 1<< 7));
+		while( !(USARTx->SR & (1<< 7) ));
 
 	if (Global_UART_Config->Payload_length == UART_PayloadLength_9B)
 	{
@@ -291,6 +291,7 @@ void MCAL_UART_SEND_DATA (USART_Typedef* USARTx, uint16_t* pTX_Buffer, enum Poll
 
 
 }
+
 
 
 /**************************************************************
@@ -308,7 +309,7 @@ void MCAL_UART_RECEIVE_DATA (USART_Typedef* USARTx, uint16_t* pTX_Buffer, enum P
 {
 	//Wait until RXNE flag is set
 	if ( PollingEn == ENABLE)
-		while( !(USARTx->SR & 1<< 5));
+		while( !(USARTx->SR & 1<<5));
 
 	if (Global_UART_Config->Payload_length == UART_PayloadLength_9B)
 	{

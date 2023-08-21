@@ -20,8 +20,9 @@
 //-------------------------------------------------
 // MACROS
 //-------------------------------------------------
-#define HSI_CLK		(uint32_t)16000000
-#define HSE_CLK		(uint32_t)8000000
+
+#define  HSE_CLK			(uint32_t)16000000
+#define  HSI_CLK			(uint32_t)8000000
 
 //-------------------------------------------------
 // APIs supported by "MCAL RCC DRIVER"
