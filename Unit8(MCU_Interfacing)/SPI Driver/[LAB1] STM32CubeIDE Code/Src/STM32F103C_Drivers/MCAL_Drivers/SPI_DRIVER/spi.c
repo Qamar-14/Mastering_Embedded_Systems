@@ -25,10 +25,12 @@ SPI_Config_t* Global_SPI_Config[2] ={NULL,NULL};
 #define	SPI1_INDEX	0
 #define	SPI2_INDEX	1
 
+#define   SPI_SR_RXNE            ((uint8_t)0x01)         //Bit 0 RXNE: Receive buffer not empty
+#define   SPI_SR_TXE             ((uint8_t)0x02)         //Bit 1 TXE: Transmit buffer empty
 
 
-#define SPI_SR_TXE               1<<1
-#define SPI_SR_RXNE              1<<0
+//#define SPI_SR_TXE               1<<1
+//#define SPI_SR_RXNE              1<<0
 //-------------------------------------------------
 // APIs
 //-------------------------------------------------
@@ -112,10 +114,13 @@ void MCAL_SPI_INIT (SPI_Typedef* SPIx, SPI_Config_t* SPI_Config)
 		}
 
 	}
-	//SPIx->CR2 = tmpreg_CR2;
 
 	SPIx->CR1 = tmpreg_CR1;
+	SPIx->CR2 = tmpreg_CR2;
 
+
+	SPIx->I2SCFGR &= ~(1<<11);
+	SPIx->CRCPR = 0x0;
 
 }
 
@@ -361,14 +366,17 @@ void MCAL_SPI_RECEIVE_DATA (SPI_Typedef* SPIx, uint16_t* pTX_Buffer,  Polling_Me
 
 void MCAL_SPI_TX_RX (SPI_Typedef* SPIx,uint16_t* pTX_Buffer,  Polling_Mechanism PollingEn)
 {
+
 	if ( PollingEn == Polling_enable)
-		while( !(SPIx->SR & SPI_SR_RXNE) );
+			while( !((SPIx->SR ) &  SPI_SR_TXE) );
+		SPIx->DR = *pTX_Buffer;
+
+	if ( PollingEn == Polling_enable)
+		while( !((SPIx->SR) & SPI_SR_RXNE) );
 	*pTX_Buffer = SPIx->DR;
 
 
-	if ( PollingEn == Polling_enable)
-		while( !(SPIx->SR &  SPI_SR_TXE) );
-	SPIx->DR = *pTX_Buffer;
+
 
 
 
@@ -379,7 +387,7 @@ void MCAL_SPI_TX_RX (SPI_Typedef* SPIx,uint16_t* pTX_Buffer,  Polling_Mechanism 
 // IRQ
 //-------------------------------------------------
 
-/*void SPI1_IRQHandler(void)
+void SPI1_IRQHandler(void)
 {
 	S_IRQ_SRC irq_src;
 
@@ -395,9 +403,9 @@ void SPI2_IRQHandler(void)
 	S_IRQ_SRC irq_src;
 
 	irq_src.TXE = (SPI2->SR & (1<<1) >> 1 );
-	irq_src.RXNE = (SPI2->SR & (1<<0) >> 0 );
+ 	irq_src.RXNE = (SPI2->SR & (1<<0) >> 0 );
 	irq_src.ERRI = (SPI2->SR & (1<<4) >> 4 );
 
 	Global_SPI_Config[SPI2_INDEX]->P_SPI_IRQ_CALLBACK(irq_src);
-}*/
+}
 

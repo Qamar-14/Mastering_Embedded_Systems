@@ -27,20 +27,21 @@
 
 
 #define MCU_ACT_AS_MASTER
-//#define MCU_ACT_AS_SLAVE
-
+//#define MCU_ACT_AS_SLAV
 uint16_t key ;
 
-/*void SPI_IRQ_CallBack(S_IRQ_SRC irq_src)
+void SPI_IRQ_CallBack(S_IRQ_SRC irq_src)
 {
+#ifdef MCU_ACT_AS_SLAV
+
 	if(irq_src.RXNE)
 	{
 		key = 0x0f;
 		MCAL_SPI_TX_RX(SPI1, &key, Polling_enable);
 		MCAL_UART_SEND_DATA(USART1, &key, ENABLE);
 	}
-
-}*/
+#endif
+}
 
 void USART_IRQ_CallBack(void)
 {
@@ -66,13 +67,27 @@ void clock_init()
 	RCC_AFIO_CLK_EN();
 
 }
-GPIO_PIN_CONFIG_t PinConfig;
+
 
 
 int main(void)
 {
 	clock_init();
+	GPIO_PIN_CONFIG_t PinConfig;
 
+	// =================== UART INIT =====================
+	UART_Config_t UART ;
+	UART.BaudRate = UART_BaudRate_115200 ;
+	UART.FlowCTRL = UART_FLOWCTRL_NONE ;
+	UART.IRQ_ENABLE = UART_IRQ_ENABLE_RXNEIE ;
+	UART.USART_MODE = UART_MODE_RX_TX ;
+	UART.Parity = UART_PARITY_NONE ;
+	UART.Payload_length = UART_PayloadLength_8B ;
+	UART.StopBits = UART_StopBit_1 ;
+	UART.P_IRQ_CALLBACK = USART_IRQ_CallBack ;
+
+	MCAL_UART_INIT(USART1, &UART);
+	MCAL_UART_GPIO_SET_PINS(USART1);
 
 
 
@@ -111,32 +126,17 @@ int main(void)
 
 	#endif
 
-	/*#ifdef MCU_ACT_AS_SLAVE
+	#ifdef MCU_ACT_AS_SLAVE
 	SPI.DEVICE_MODE = SPI_DEVICE_MODE_SLAVE;
 	SPI.IRQ_ENABLE = SPI_IRQ_ENABLE_RXNEIE;
 	SPI.NSS = SPI_NSS_HW_SLAVE;
-	SPI.P_SPI_IRQ_CALLBACK = NULL;
+	SPI.P_SPI_IRQ_CALLBACK = USART_IRQ_CallBack;
 
 	#endif
-*/
+
 
 	MCAL_SPI_INIT(SPI1, &SPI);
 	MCAL_SPI_GPIO_SET_PINS(SPI1);
-
-	// =================== UART INIT =====================
-	UART_Config_t UART ;
-	UART.BaudRate = UART_BaudRate_115200 ;
-	UART.FlowCTRL = UART_FLOWCTRL_NONE ;
-	UART.IRQ_ENABLE = UART_IRQ_ENABLE_RXNEIE ;
-	UART.USART_MODE = UART_MODE_RX_TX ;
-	UART.Parity = UART_PARITY_NONE ;
-	UART.Payload_length = UART_PayloadLength_8B ;
-	UART.StopBits = UART_StopBit_1 ;
-	UART.P_IRQ_CALLBACK = USART_IRQ_CallBack ;
-
-	MCAL_UART_INIT(USART1, &UART);
-	MCAL_UART_GPIO_SET_PINS(USART1);
-
 
 
 	while(1)
