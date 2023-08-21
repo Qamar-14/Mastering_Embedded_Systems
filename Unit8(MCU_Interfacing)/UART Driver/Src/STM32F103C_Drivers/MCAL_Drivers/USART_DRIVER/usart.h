@@ -60,10 +60,10 @@ typedef struct
 
 
 //@ref UART_BaudRate_DEFINE
-#define UART_BaudRate_2400		2400
-#define UART_BaudRate_9600		9600
-#define UART_BaudRate_19200		19200
-#define UART_BaudRate_57600		57600
+#define UART_BaudRate_2400			2400
+#define UART_BaudRate_9600			9600
+#define UART_BaudRate_19200			19200
+#define UART_BaudRate_57600			57600
 #define UART_BaudRate_115200		115200
 #define UART_BaudRate_230400		230400
 #define UART_BaudRate_460800		460800
@@ -96,6 +96,7 @@ The 0.5 Stop bit and 1.5 Stop bit are not available for UART4 & UART5.*/
 #define  UART_StopBit_2		 	(uint32_t)(2<<12)
 #define  UART_StopBit_half		(uint32_t)(1<<12)
 
+
 // @ref UART_FLOWCTRL_DEFINE
 /*Bit 9 CTSE: CTS enable
 0: CTS hardware flow control disabled
@@ -119,9 +120,9 @@ This bit is not available for UART4 & UART5.*/
 
 // @ref UART_IRQ_EN_DEFINE
 #define  UART_IRQ_ENABLE_NONE		(uint32_t)(0)
-#define  UART_IRQ_ENABLE_TXE		(uint32_t)(1<<7)
-#define  UART_IRQ_ENABLE_TC			(uint32_t)(1<<6)
-#define  UART_IRQ_ENABLE_RXNEIE		(uint32_t)(1<<5)
+#define  UART_IRQ_ENABLE_TXE		((uint32_t)(1<<7))
+#define  UART_IRQ_ENABLE_TC			((uint32_t)(1<<6))
+#define  UART_IRQ_ENABLE_RXNEIE		(uint8_t)(1<<5)
 #define  UART_IRQ_ENABLE_PE			(uint32_t)(1<<8)
 
 
@@ -137,13 +138,15 @@ enum Polling_Mechanism {
 //DIV_Mantissa= USARTDIV (Integer part)
 //DIV_Fraction= ((SARTDIV_MUL100 - Mantissa_MUL100)*16)/100
 
-#define  USARTDIV(_PCLK_,_BAUD_)				(uint32_t)(_PCLK_/(16*_BAUD_))
-#define  USARTDIV_MUL100(_PCLK_,_BAUD_) 		(uint32_t)((25*_PCLK_)/(4*_BAUD_))
-#define  Mantissa_MUL100(_PCLK_,_BAUD_)			(uint32_t)(USARTDIV(_PCLK_,_BAUD_)*100)
-#define  DIV_Mantissa(_PCLK_,_BAUD_)			(uint32_t)(USARTDIV(_PCLK_,_BAUD_))
-#define  DIV_Fraction(_PCLK_,_BAUD_)			(uint32_t)(((USARTDIV_MUL100(_PCLK_,_BAUD_) -Mantissa_MUL100(_PCLK_,_BAUD_))*16)/100)
-#define  UART_BRR_REG(_PCLK_,_BAUD_)			((DIV_Mantissa(_PCLK_,_BAUD_) << 4) | (DIV_Fraction(_PCLK_,_BAUD_) & 0xF))
 
+
+
+#define USARTDIV(_PCLK_, _BAUD_)							(uint32_t) (_PCLK_/(16 * _BAUD_ ))
+#define USARTDIV_MUL100(_PCLK_, _BAUD_)						(uint32_t) ( (25 * _PCLK_ ) / (4  * _BAUD_ ))
+#define Mantissa_MUL100(_PCLK_, _BAUD_)						(uint32_t) (USARTDIV(_PCLK_, _BAUD_) * 100)
+#define DIV_Mantissa(_PCLK_, _BAUD_)						(uint32_t) (USARTDIV(_PCLK_, _BAUD_) )
+#define DIV_Fraction(_PCLK_, _BAUD_)						(uint32_t) (((USARTDIV_MUL100(_PCLK_, _BAUD_) -  Mantissa_MUL100(_PCLK_, _BAUD_) ) * 16 ) / 100 )
+#define UART_BRR_REG(_PCLK_, _BAUD_)						(( DIV_Mantissa (_PCLK_, _BAUD_) ) <<4 )|( (DIV_Fraction(_PCLK_, _BAUD_)) & 0xF )
 
 
 

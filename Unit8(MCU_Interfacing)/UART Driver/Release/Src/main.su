@@ -1,2 +1,4 @@
-main.c:29:6:clock_init	0	static
-main.c:42:5:main	32	static
+main.c:45:6:USART_IRQ_CallBack	16	static
+main.c:34:6:SPI_IRQ_CallBack	8	static
+main.c:58:6:clock_init	0	static
+main.c:72:5:main	32	static

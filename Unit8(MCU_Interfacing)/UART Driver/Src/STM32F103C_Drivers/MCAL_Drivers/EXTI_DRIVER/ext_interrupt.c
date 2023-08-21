@@ -112,7 +112,11 @@ void Disable_NVIC (uint16_t IRQ)
 void UPDATE_EXTI(EXTI_PIN_CONFIG_t* EXTI_Config)
 {
 	//1- Configure GPIO to be AF Input -> Floating input
-	MCAL_GPIO_SET_PIN_INPUT(EXTI_Config->EXTI_PIN.GPIO_PORT, EXTI_Config->EXTI_PIN.PIN, GPIO_MODE_INPUT_FLOATING);
+	GPIO_PIN_CONFIG_t PinCfg;
+
+	PinCfg.GPIO_PIN_NO =  EXTI_Config->EXTI_PIN.PIN;
+	PinCfg.GPIO_MODE = GPIO_MODE_INPUT_FLOATING;
+	MCAL_GPIO_Init(EXTI_Config->EXTI_PIN.GPIO_PORT, &PinCfg);
 
 	//2-Update AFIO to route between EXTI line with port A,B,C,D
 	uint8_t AFIO_EXTICR_Index;

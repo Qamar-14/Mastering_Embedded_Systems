@@ -11,7 +11,7 @@
 //-------------------------------------------------
 // INCLUDES
 //-------------------------------------------------
-#include "../../../../../stm32/Src/STM32F103C_Drivers/HAL_Drivers/KEYPAD_DRIVER/keypad.h"
+#include "keypad.h"
 
 GPIO_PIN_CONFIG_t PinCfg ;
 

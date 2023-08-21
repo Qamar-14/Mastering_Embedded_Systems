@@ -1,3 +1,4 @@
-main.c:27:6:clock_init	4	static
-main.c:37:6:EXTI0_Handler	16	static
-main.c:46:5:main	32	static
+main.c:36:6:SPI_IRQ_CallBack	16	static
+main.c:47:6:USART_IRQ_CallBack	8	static
+main.c:60:6:clock_init	4	static
+main.c:73:5:main	16	static

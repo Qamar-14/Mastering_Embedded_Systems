@@ -106,35 +106,42 @@ void MCAL_GPIO_Init	(GPIO_Typedef *GPIOx , GPIO_PIN_CONFIG_t* PINconfig)
 	volatile uint32_t* configReg = NULL;
 	uint8_t PIN_config =0;
 
-	configReg = (PINconfig->GPIO_PIN_NO > GPIO_PIN7) ? &GPIOx->CRH : &GPIOx->CRL;
+	configReg = (PINconfig->GPIO_PIN_NO < GPIO_PIN8) ? &GPIOx->CRL : &GPIOx->CRH;
 
 	(*configReg) &= ~(0xF << GET_CRLH_POSITION(PINconfig->GPIO_PIN_NO ));
 
+	//Pin is output
 
-	//If pin is output
-
-	if( (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_PP) || (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_OD) || (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_AF_PP))
+	if( (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_PP) || (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_OD) || (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_AF_OD) || (PINconfig->GPIO_MODE == GPIO_MODE_OUTPUT_AF_PP))
  	{
 		PIN_config= ( (( (PINconfig->GPIO_MODE -4) <<2 ) | (PINconfig->GPIO_OUTPUT_SPEED)) & 0x0F);
+		(*configReg) |= (  ( PIN_config ) << (GET_CRLH_POSITION(PINconfig->GPIO_PIN_NO )));
 	}
+
 
 	//Pin is input
 	else //Mode = 00: Input mode (reset state)
 	{
-		if ( (PINconfig->GPIO_MODE == GPIO_MODE_INPUT_FLOATING) || (PINconfig->GPIO_MODE == GPIO_MODE_AF_INPUT))
+		if ( (PINconfig->GPIO_MODE == GPIO_MODE_INPUT_FLOATING) || (PINconfig->GPIO_MODE == GPIO_MODE_ANALOG))
 		{
 			//Set CNF8[1:0] MODE8[1:0] 00
 			PIN_config = (( ( (PINconfig->GPIO_MODE) <<2 ) | 0x0) & 0x0F);
+			(*configReg) |= (  ( PIN_config ) << (GET_CRLH_POSITION(PINconfig->GPIO_PIN_NO )));
+
 		}
-		/*else if (PINconfig->GPIO_MODE == GPIO_MODE_AF_INPUT) //Consider it as input floating
+		else if (PINconfig->GPIO_MODE == GPIO_MODE_AF_INPUT) //Consider it as input floating
 		{
 			PIN_config = (( (GPIO_MODE_INPUT_FLOATING <<2 ) | 0x0) & 0x0F);
+			(*configReg) |= (  ( PIN_config ) << (GET_CRLH_POSITION(PINconfig->GPIO_PIN_NO )));
 
-		}*/
+
+		}
 
 		else
 		{
 			PIN_config = (( (GPIO_MODE_INPUT_PU <<2 ) | 0x0) & 0x0F);
+			(*configReg) |= (  ( PIN_config ) << (GET_CRLH_POSITION(PINconfig->GPIO_PIN_NO )));
+
 			if (PINconfig->GPIO_MODE == GPIO_MODE_INPUT_PU )
 			{
 				//PxODR = 1 INPUT pull-up :Table 20. Port bit configuration table
@@ -149,6 +156,8 @@ void MCAL_GPIO_Init	(GPIO_Typedef *GPIOx , GPIO_PIN_CONFIG_t* PINconfig)
 		}
 	}
 	(*configReg) |= ( (PIN_config) << GET_CRLH_POSITION(PINconfig->GPIO_PIN_NO ));
+	//if pin is input
+
 
 }
 
@@ -266,9 +275,9 @@ void MCAL_GPIO_WRITE_PORT(GPIO_Typedef *GPIOx, uint8_t value)
  */
 void MCAL_GPIO_WRITE_PIN (GPIO_Typedef *GPIOx, uint16_t PIN , uint8_t value)
 {
-	if (value == GPIO_PIN_SET)
+	if (value != GPIO_PIN_RESET)
 	{
-		GPIOx->ODR = (uint32_t)PIN ;
+		GPIOx->ODR = PIN ;
 
 		//Bits 15:0 BSy: Port x Set bit y (y= 0 .. 15)
 		//These bits are write-only and can be accessed in Word mode only.
@@ -284,9 +293,13 @@ void MCAL_GPIO_WRITE_PIN (GPIO_Typedef *GPIOx, uint16_t PIN , uint8_t value)
 		//These bits are write-only and can be accessed in Word mode only.
 		//0: No action on the corresponding ODRx bit
 		//1: Reset the corresponding ODRx bit
-		  GPIOx->BRR =(uint32_t) PIN ;
+		GPIOx->ODR &= ~(PIN) ;
+		// OR
+		//GPIOx->BRR = (uint32_t)PIN ;
+
 	}
 }
+
 
 /**************************************************************
  * @Fn			-MCAL_GPIO_TOGGLE_PIN

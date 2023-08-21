@@ -9,8 +9,13 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include Startup/subdir.mk
+-include Src/STM32F103C_Drivers/MCAL_Drivers/USART_DRIVER/subdir.mk
+-include Src/STM32F103C_Drivers/MCAL_Drivers/SPI_DRIVER/subdir.mk
+-include Src/STM32F103C_Drivers/MCAL_Drivers/RCC_DRIVER/subdir.mk
+-include Src/STM32F103C_Drivers/MCAL_Drivers/I2C_DRIVER/subdir.mk
 -include Src/STM32F103C_Drivers/MCAL_Drivers/GPIO_DRIVER/subdir.mk
 -include Src/STM32F103C_Drivers/MCAL_Drivers/EXTI_DRIVER/subdir.mk
+-include Src/STM32F103C_Drivers/HAL_Drivers/LCD_DRIVER/subdir.mk
 -include Src/STM32F103C_Drivers/HAL_Drivers/KEYPAD_DRIVER/subdir.mk
 -include Src/subdir.mk
 -include subdir.mk
@@ -32,24 +37,24 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-stm32.elf \
+STM32_DRIVERS.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-stm32.list \
+STM32_DRIVERS.list \
 
 OBJCOPY_BIN += \
-stm32.bin \
+STM32_DRIVERS.bin \
 
 
 # All Target
-all: stm32.elf secondary-outputs
+all: STM32_DRIVERS.elf secondary-outputs
 
 # Tool invocations
-stm32.elf: $(OBJS) $(USER_OBJS) C:\Users\noore\STM32CubeIDE\workspace_1.4.0\stm32\STM32F103C6TX_FLASH.ld
-	arm-none-eabi-gcc -o "stm32.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\noore\STM32CubeIDE\workspace_1.4.0\stm32\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STM32_DRIVERS.elf: $(OBJS) $(USER_OBJS) C:\Users\qamar\STM32CubeIDE\workspace_1.4.0\STM32_DRIVERS\STM32F103C6TX_FLASH.ld
+	arm-none-eabi-gcc -o "STM32_DRIVERS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\qamar\STM32CubeIDE\workspace_1.4.0\STM32_DRIVERS\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_DRIVERS.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -58,13 +63,13 @@ default.size.stdout: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-stm32.list: $(EXECUTABLES)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "stm32.list"
+STM32_DRIVERS.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "STM32_DRIVERS.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-stm32.bin: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "stm32.bin"
+STM32_DRIVERS.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "STM32_DRIVERS.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 

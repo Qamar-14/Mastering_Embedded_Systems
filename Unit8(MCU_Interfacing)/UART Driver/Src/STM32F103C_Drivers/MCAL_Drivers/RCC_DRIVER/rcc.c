@@ -21,7 +21,7 @@ Warning: the software has to set correctly these bits to not exceed 36 MHz on th
 101: HCLK divided by 4
 110: HCLK divided by 8
 111: HCLK divided by 16*/
-const uint8_t APB_Prescalar[8u] = { 0,0,0,0,1,2,3,4}; //Shift 1 right == division by 2
+const uint8_t APB_Prescalar[8U] = { 0,0,0,0,1,2,3,4}; //Shift 1 right == division by 2
 
 /*Bits 7:4 HPRE: AHB prescaler
 Set and cleared by software to control the division factor of the AHB clock.
@@ -35,7 +35,7 @@ Set and cleared by software to control the division factor of the AHB clock.
 1110: SYSCLK divided by 256
 1111: SYSCLK divided by 512*/
 
-const uint8_t AHB_Prescalar[16u] = { 0,0,0,0,0,0,0,0,1,2,3,4,6,7,8,9}; //Shift 1 right == division by 2
+const uint8_t AHB_Prescalar[16U] = {0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8};//Shift 1 right == division by 2
 
 
 
@@ -58,13 +58,20 @@ uint32_t MCAL_RCC_GET_SYSCLK_FREQ()
 			break;
 		case 2:
 			return 16000000;
+
 			break;
-	}
+
+		default:
+			return 0;
+			break;
+
+		}
+		return 0;
 }
 
 uint32_t MCAL_RCC_GET_HCLK_FREQ()
 {
-	return ( MCAL_RCC_GET_SYSCLK_FREQ() >> APB_Prescalar[( (RCC->CFGR >> 4) & 0b111)] );
+	return ( MCAL_RCC_GET_SYSCLK_FREQ() >> AHB_Prescalar[( (RCC->CFGR >> 4) & 0b111)] );
 
 }
 uint32_t MCAL_RCC_GET_PCLK1_FREQ()
@@ -76,6 +83,7 @@ uint32_t MCAL_RCC_GET_PCLK2_FREQ()
 {
 	//Bits 13:11 PPRE2: APB high-speed prescaler (APB2)
 	return ( MCAL_RCC_GET_HCLK_FREQ() >> APB_Prescalar[( (RCC->CFGR >> 11) & 0b111)] );
+
 
 }
 
