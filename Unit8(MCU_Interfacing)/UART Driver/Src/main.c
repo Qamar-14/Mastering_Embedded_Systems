@@ -23,7 +23,6 @@
 
 #include "GPIO_DRIVER/gpio.h"
 #include "USART_DRIVER/usart.h"
-#include "SPI_DRIVER/spi.h"
 
 
 #define MCU_ACT_AS_MASTER
@@ -31,28 +30,14 @@
 
 unsigned key ;
 
-void SPI_IRQ_CallBack(S_IRQ_SRC irq_src)
-{
-	if(irq_src.RXNE)
-	{
-		key = 0x0f;
-		MCAL_SPI_TX_RX(SPI1, &key, Polling_enable);
-		MCAL_UART_SEND_DATA(USART1, &key, ENABLE);
-	}
 
-}
 
 void USART_IRQ_CallBack(void)
 {
-	//#ifdef MCU_ACT_AS_MASTER
 	MCAL_UART_RECEIVE_DATA(USART1, &key, DISABLE);
 	MCAL_UART_SEND_DATA(USART1, &key, ENABLE);
 
-	/*//Send to SPI
-	MCAL_GPIO_WRITE_PIN(GPIOA, GPIO_PIN4, 0);
-	MCAL_SPI_TX_RX(SPI1, &key, Polling_enable);
-	MCAL_GPIO_WRITE_PIN(GPIOA, GPIO_PIN4, 1);
-	#endif*/
+	
 }
 
 void clock_init()
@@ -74,55 +59,6 @@ int main(void)
 	clock_init();
 
 
-/*
-
-	// =================== SPI INIT =====================
-	//   PA4 : SPI1_NSS
-	//   PA5 : SPI1_SCK
-	//	 PA6 : SPI1_MISO
-	//   PA7 : SPI1_MOSI
-	SPI_Config_t SPI;
-
-	// common configuration for master and slave
-	SPI.CLK_PHASE = SPI_CLKPHASE_2EDGE_FIRST_DATA_CAPTURE_EDGE;
-	SPI.CLK_POLARITY = SPI_CLKPOLARITY_HIGH_WHEN_IDLE;
-	SPI.DATA_SZ = SPI_DATA_SIZE_8B;
-	SPI.FRAME_FORMAT = SPI_FRAME_FORMAT_MSB;
-	SPI.SPI_BAUDRATE_PRESCALAR = SPI_BAUDRATE_PRESCALAR_8;
-	SPI.COMM_MODE = SPI_DIRECTION_2LINES;
-
-
-	#ifdef MCU_ACT_AS_MASTER
-
-	SPI.DEVICE_MODE = SPI_DEVICE_MODE_MASTER;
-	SPI.IRQ_ENABLE = SPI_IRQ_ENABLE_NONE;
-	SPI.NSS = SPI_NSS_SW_InternalSoft_set;
-	SPI.P_SPI_IRQ_CALLBACK = NULL;
-
-	// configure SS on PA4 by GPIO
-    PinConfig.GPIO_PIN_NO = GPIO_PIN4;
-    PinConfig.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
-    PinConfig.GPIO_OUTPUT_SPEED = GPIO_SPEED_10MHZ;
-    MCAL_GPIO_Init(GPIOA, &PinConfig);
-
-
-	// Force the Slave Select (HIGH) for idle Mode
-	MCAL_GPIO_WRITE_PIN(GPIOA, GPIO_PIN4, 1);
-
-	#endif
-
-	#ifdef MCU_ACT_AS_SLAVE
-	SPI.DEVICE_MODE = SPI_DEVICE_MODE_SLAVE;
-	SPI.IRQ_ENABLE = SPI_IRQ_ENABLE_RXNEIE;
-	SPI.NSS = SPI_NSS_HW_SLAVE;
-	SPI.P_SPI_IRQ_CALLBACK = NULL;
-
-	#endif
-
-
-	MCAL_SPI_INIT(SPI1, &SPI);
-	MCAL_SPI_GPIO_SET_PINS(SPI1);
-*/
 	// =================== UART INIT =====================
 	UART_Config_t UART ;
 	UART.BaudRate = UART_BaudRate_115200 ;
