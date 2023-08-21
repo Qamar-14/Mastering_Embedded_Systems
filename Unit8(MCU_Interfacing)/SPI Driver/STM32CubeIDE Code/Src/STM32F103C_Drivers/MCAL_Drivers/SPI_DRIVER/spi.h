@@ -123,7 +123,7 @@ It is not used in I2S mode*/
 
 //@ref SPI_NSS (SPI SLAVE SELECT MANAGEMENT) HW OR SW
 //HW
-#define SPI_NSS_HW_SLAVE				((uint16_t)0x0U)
+#define SPI_NSS_HW_SLAVE				 (uint16_t)(0)
 #define SPI_NSS_HW_MASTER_SSO_ENABLE	 (1<<2)//CR2
 #define SPI_NSS_HW_MASTER_SSO_DISABLE	~(1<<2)  //CR2
 
@@ -168,7 +168,7 @@ They are not used in I2S mode.*/
 //@ref SPI_IRQ_ENABLE
 #define SPI_IRQ_ENABLE_NONE				(0x00000000U)
 #define SPI_IRQ_ENABLE_TXIE				(0x1U<<7) //Bit 7 TXEIE: Tx buffer empty interrupt enable
-#define SPI_IRQ_ENABLE_RXNEIE				(0x1U<<6) //Bit 6 RXNEIE: RX buffer not empty interrupt enable
+#define SPI_IRQ_ENABLE_RXNEIE			(uint32_t)(1<<6) //Bit 6 RXNEIE: RX buffer not empty interrupt enable
 #define SPI_IRQ_ENABLE_ERRIE				(0x1U<<5) //Bit 5 ERRIE: Error interrupt enable
 
 

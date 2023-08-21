@@ -119,8 +119,8 @@ void MCAL_SPI_INIT (SPI_Typedef* SPIx, SPI_Config_t* SPI_Config)
 	SPIx->CR2 = tmpreg_CR2;
 
 
-	SPIx->I2SCFGR &= ~(1<<11);
-	SPIx->CRCPR = 0x0;
+	//SPIx->I2SCFGR &= ~(1<<11);
+	//SPIx->CRCPR = 0x0;
 
 }
 

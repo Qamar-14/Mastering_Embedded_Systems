@@ -27,16 +27,16 @@
 
 
 #define MCU_ACT_AS_MASTER
-//#define MCU_ACT_AS_SLAV
+//#define MCU_ACT_AS_SLAVE
 uint16_t key ;
 
 void SPI_IRQ_CallBack(S_IRQ_SRC irq_src)
 {
-#ifdef MCU_ACT_AS_SLAV
+#ifdef MCU_ACT_AS_SLAVE
 
 	if(irq_src.RXNE)
 	{
-		key = 0x0f;
+		key = 0xf;
 		MCAL_SPI_TX_RX(SPI1, &key, Polling_enable);
 		MCAL_UART_SEND_DATA(USART1, &key, ENABLE);
 	}
@@ -130,7 +130,7 @@ int main(void)
 	SPI.DEVICE_MODE = SPI_DEVICE_MODE_SLAVE;
 	SPI.IRQ_ENABLE = SPI_IRQ_ENABLE_RXNEIE;
 	SPI.NSS = SPI_NSS_HW_SLAVE;
-	SPI.P_SPI_IRQ_CALLBACK = USART_IRQ_CallBack;
+	SPI.P_SPI_IRQ_CALLBACK = SPI_IRQ_CallBack;
 
 	#endif
 
