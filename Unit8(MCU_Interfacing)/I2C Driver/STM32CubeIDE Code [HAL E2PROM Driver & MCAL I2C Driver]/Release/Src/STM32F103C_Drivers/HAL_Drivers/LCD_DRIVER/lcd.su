@@ -1,0 +1,13 @@
+lcd.c:22:6:delay_ms	0	static
+lcd.c:41:6:LCD_GPIO_Init	16	static
+lcd.c:222:6:LCD_kick	8	static
+lcd.c:118:6:LCD_IsBusy	48	static
+lcd.c:269:6:LCD_WRITE_COMMAND	8	static
+lcd.c:238:6:LCD_INIT	8	static
+lcd.c:300:6:LCD_WRITE_CHAR	8	static
+lcd.c:348:6:LCD_clear_screen	0	static
+lcd.c:321:6:LCD_WRITE_STRING	16	static
+lcd.c:360:6:LCD_GOTO_XY	0	static
+lcd.c:385:6:LCD_WRITE_STRING_POS	16	static
+lcd.c:411:6:DISPLAY_NUMBER	16	static
+lcd.c:420:6:DISPLAY_REAL_NUMBER	40	static
