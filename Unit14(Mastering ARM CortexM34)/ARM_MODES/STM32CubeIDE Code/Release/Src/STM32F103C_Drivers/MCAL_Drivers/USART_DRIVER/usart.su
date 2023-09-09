@@ -1,0 +1,9 @@
+usart.c:43:6:MCAL_UART_INIT	16	static
+usart.c:130:6:MCAL_UART_DeINIT	0	static
+usart.c:159:6:MCAL_UART_GPIO_SET_PINS	16	static
+usart.c:276:6:MCAL_UART_SEND_DATA	0	static
+usart.c:308:6:MCAL_UART_RECEIVE_DATA	0	static
+usart.c:355:6:MCAL_UART_WAIT_TC	0	static
+usart.c:361:6:USART1_IRQHandler	0	static
+usart.c:366:6:USART2_IRQHandler	0	static
+usart.c:371:6:USART3_IRQHandler	0	static
