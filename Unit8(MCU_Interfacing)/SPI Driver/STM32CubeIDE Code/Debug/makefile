@@ -37,24 +37,24 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-STM32_DRIVERS.elf \
+stm32.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-STM32_DRIVERS.list \
+stm32.list \
 
 OBJCOPY_BIN += \
-STM32_DRIVERS.bin \
+stm32.bin \
 
 
 # All Target
-all: STM32_DRIVERS.elf secondary-outputs
+all: stm32.elf secondary-outputs
 
 # Tool invocations
-STM32_DRIVERS.elf: $(OBJS) $(USER_OBJS) C:\Users\qamar\STM32CubeIDE\workspace_1.4.0\STM32_DRIVERS\STM32F103C6TX_FLASH.ld
-	arm-none-eabi-gcc -o "STM32_DRIVERS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\qamar\STM32CubeIDE\workspace_1.4.0\STM32_DRIVERS\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_DRIVERS.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+stm32.elf: $(OBJS) $(USER_OBJS) C:\Users\qamar\OneDrive\Desktop\Mastering_Embedded_Systems\Unit8(MCU_Interfacing)\SPI\ Driver\STM32CubeIDE\ Code\STM32F103C6TX_FLASH.ld
+	arm-none-eabi-gcc -o "stm32.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\qamar\OneDrive\Desktop\Mastering_Embedded_Systems\Unit8(MCU_Interfacing)\SPI Driver\STM32CubeIDE Code\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -63,13 +63,13 @@ default.size.stdout: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STM32_DRIVERS.list: $(EXECUTABLES)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "STM32_DRIVERS.list"
+stm32.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "stm32.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STM32_DRIVERS.bin: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "STM32_DRIVERS.bin"
+stm32.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "stm32.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 
