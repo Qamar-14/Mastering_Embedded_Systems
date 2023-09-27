@@ -15,5 +15,5 @@ C_DEPS += \
 
 # Each subdirectory must supply rules for building sources it contributes
 Src/STM32F103C_Drivers/MCAL_Drivers/SPI_DRIVER/spi.o: ../Src/STM32F103C_Drivers/MCAL_Drivers/SPI_DRIVER/spi.c
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m3 -std=gnu11 -g3 -DSTM32 -DSTM32F1 -DSTM32F103C6Tx -DDEBUG -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Src/STM32F103C_Drivers/MCAL_Drivers/SPI_DRIVER/spi.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m3 -std=gnu11 -g3 -DSTM32 -DSTM32F1 -DSTM32F103C6Tx -DDEBUG -c -I../Inc -I"C:/Users/qamar/OneDrive/Desktop/Mastering_Embedded_Systems/Unit8(MCU_Interfacing)/SPI Driver/STM32CubeIDE Code/Src/STM32F103C_Drivers" -I"C:/Users/qamar/OneDrive/Desktop/Mastering_Embedded_Systems/Unit8(MCU_Interfacing)/SPI Driver/STM32CubeIDE Code/Src/STM32F103C_Drivers/MCAL_Drivers" -I"C:/Users/qamar/OneDrive/Desktop/Mastering_Embedded_Systems/Unit8(MCU_Interfacing)/SPI Driver/STM32CubeIDE Code/Src/STM32F103C_Drivers/HAL_Drivers" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Src/STM32F103C_Drivers/MCAL_Drivers/SPI_DRIVER/spi.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 
